@@ -14,3 +14,7 @@ import torch
 BATCH_SIZE = 128
 TEST_BATCH_SIZE  = 128
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+NUM_EPOCHS = 4e3
+
+#Constants part1
+Adam_LR = 0.0001
