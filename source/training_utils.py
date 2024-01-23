@@ -68,7 +68,7 @@ def fit(
             optimizer=optimizer,
             device=device,
         )
-        print(f"Epoch {epoch}: Loss={running_loss}")
+        #print(f"Epoch {epoch}: Loss={running_loss}")
         losses.append(running_loss)
 
     return losses
@@ -88,13 +88,12 @@ def predict(
             test_loss += loss.item()
             pred = output.data.max(1, keepdim=True)[1]
             correct += pred.eq(target.data.view_as(pred)).sum()
+    test_loss /= len(test_dataloader.sampler)
+    accuracy = 100.0 * correct / len(test_dataloader.sampler)
 
-    test_loss /= len(test_dataloader.dataset)
-    accuracy = 100.0 * correct / len(test_dataloader.dataset)
-
-    if verbose:
+    if False:
         print(
-            f"Test set: Avg. loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_dataloader.dataset)} ({accuracy:.0f}%)"
+            f"Test set: Avg. loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_dataloader.sampler)} ({accuracy:.0f}%)"
         )
 
     return test_loss, accuracy
