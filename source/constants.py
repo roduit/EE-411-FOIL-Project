@@ -8,15 +8,19 @@
 #Import libraries
 import os
 import torch
-
+import seaborn as sns
 
 #Model constants
 BATCH_SIZE = 128
 TEST_BATCH_SIZE  = 128
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-NUM_EPOCHS = 4e3
+NUM_EPOCHS = 1
 
 #Constants part1
 Adam_LR = 0.0001
 SGD_LR = 0.1
-NUM_SAMPLES = 1000
+NUM_TRAIN_SAMPLES = 10
+NUM_TEST_SAMPLES = 1
+
+#Plot constants
+color_palette = sns.color_palette('viridis')
