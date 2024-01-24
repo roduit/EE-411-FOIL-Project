@@ -18,4 +18,5 @@ NUM_EPOCHS = 4e3
 
 #Constants part1
 Adam_LR = 0.0001
-NUM_SAMPLES = in
+SGD_LR = 0.1
+NUM_SAMPLES = 1000
