@@ -11,7 +11,7 @@ def train_epoch(
     model: nn.Module,
     train_dataloader: DataLoader,
     optimizer: torch.optim.Optimizer,
-    device: torch.device,
+    device: torch.device
 ):
     """
     This function implements the core components of any Neural Network training regiment.
@@ -53,6 +53,7 @@ def fit(
     optimizer: torch.optim.Optimizer,
     epochs: int,
     device: torch.device,
+    scheduler:torch.optim.lr_scheduler
 ):
     """
     the fit method simply calls the train_epoch() method for a
@@ -70,6 +71,7 @@ def fit(
         )
         #print(f"Epoch {epoch}: Loss={running_loss}")
         losses.append(running_loss)
+        scheduler.step(running_loss)
 
     return losses
 
