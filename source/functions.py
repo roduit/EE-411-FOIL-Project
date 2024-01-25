@@ -123,7 +123,7 @@ def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset)
             batch_size=constants.TEST_BATCH_SIZE, 
             shuffle=False,
             num_workers=2)
-
+        out_epoch = display(IPython.display.Pretty('Starting'), display_id=True)
         # Iterate over different widths
         for width in width_model_list:
           out.update(IPython.display.Pretty('Training for width ' + str(width) + '/' + str(width_model_list[-1])))
@@ -139,9 +139,10 @@ def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset)
               model=cnn,
               train_dataloader=noisy_train_dataloader,
               optimizer=optimizer,
-              epochs=50,
+              epochs=constants.NUM_EPOCHS,
               device=constants.DEVICE,
-              scheduler=scheduler
+              scheduler=scheduler,
+              text = out_epoch
           )
 
           #Evaluate model

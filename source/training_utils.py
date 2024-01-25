@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 from torch.utils.data import DataLoader
+import IPython
 
 
 def train_epoch(
@@ -53,7 +54,8 @@ def fit(
     optimizer: torch.optim.Optimizer,
     epochs: int,
     device: torch.device,
-    scheduler:torch.optim.lr_scheduler
+    scheduler:torch.optim.lr_scheduler,
+    text
 ):
     """
     the fit method simply calls the train_epoch() method for a
@@ -69,7 +71,7 @@ def fit(
             optimizer=optimizer,
             device=device,
         )
-        #print(f"Epoch {epoch}: Loss={running_loss}")
+        text.update(IPython.display.Pretty('Epoch ' + str(epoch+1) +'/'+str(epochs)+ ': Loss = ' + str(running_loss)))
         losses.append(running_loss)
         scheduler.step(running_loss)
 
@@ -93,28 +95,4 @@ def predict(
     test_loss /= len(test_dataloader.sampler)
     accuracy = 100.0 * correct / len(test_dataloader.sampler)
 
-    if False:
-        print(
-            f"Test set: Avg. loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_dataloader.sampler)} ({accuracy:.0f}%)"
-        )
-
     return test_loss, accuracy
-
-
-def visualize_images(dataloader):
-    images = next(iter(dataloader))[0][:10]
-    grid = torchvision.utils.make_grid(images, nrow=5, padding=10)
-
-    def show(img):
-        npimg = img.numpy()
-        plt.imshow(np.transpose(npimg, (1, 2, 0)), interpolation="nearest")
-
-    show(grid)
-
-
-def plot_loss(losses, ylim=None):
-    plt.plot(losses)
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss")
-    plt.ylim(ylim)
-    plt.title("Loss progression across epochs")
