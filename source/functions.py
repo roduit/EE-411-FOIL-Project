@@ -116,8 +116,7 @@ def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset)
             sampler=SubsetRandomSampler(subsample_train_indices),
             num_workers=2)
         
-        noisy_test_dataset = label_noise(test_dataset, noise_ratio=noise_ratio)
-        test_subset = torch.utils.data.Subset(noisy_test_dataset, subsample_test_indices)
+        test_subset = torch.utils.data.Subset(test_dataset, subsample_test_indices)
         noisy_test_dataloader = torch.utils.data.DataLoader(
             test_subset, 
             batch_size=constants.TEST_BATCH_SIZE, 
