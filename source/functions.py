@@ -19,6 +19,7 @@ import time
 #Import files
 import constants
 from models.resnet18k import make_resnet18k
+from models.mcnn import make_cnn
 from training_utils import fit, predict
 
 def label_noise(dataset, noise_ratio=0.1, seed = 0):
@@ -87,7 +88,7 @@ def visualize_dataset(dataset, num_images, label_names=None):
     plt.tight_layout()
     plt.show()
 
-def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset):
+def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset, optimizer, model):
     #initialize lists for storing results
     train_losses = []
     train_accuracies = []
@@ -128,9 +129,16 @@ def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset)
         for width in width_model_list:
           out.update(IPython.display.Pretty('Training for width ' + str(width) + '/' + str(width_model_list[-1])))
           #Define model
-          ResNet = make_resnet18k(k=width)
-          cnn = ResNet.to(constants.DEVICE)
-          optimizer = torch.optim.Adam(cnn.parameters(), lr=constants.Adam_LR)
+          if model == 'ResNet':  
+            ResNet = make_resnet18k(k=width)
+            cnn = ResNet.to(constants.DEVICE)
+          else:
+            CNN = make_cnn(c = width)
+            cnn = CNN.to(constants.DEVICE)
+          if optimizer == 'SGD':
+            optimizer = torch.optim.SGD(cnn.parameters(), lr=constants.SGD_LR)
+          else:
+            optimizer = torch.optim.Adam(cnn.parameters(), lr=constants.Adam_LR)
           scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
               optimizer, mode="min", factor=0.1, patience=2, verbose=False
           )

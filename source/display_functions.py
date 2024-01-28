@@ -9,13 +9,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def display_error(error_lists, width_model_list,noise_ratio_list):
+def display_error(error_lists, width_model_list,noise_ratio_list, optimizer):
   for noise_level, noise_curve in enumerate(error_lists):
     acc = np.array([i.item() for i in noise_curve])
     test_error = 100 - acc
-    plt.plot(width_model_list, test_error, '--',label = f'noise : {int(noise_ratio_list[noise_level]*100)}%')
+    plt.plot(width_model_list, test_error, '--',label = optimizer)
   plt.legend()
-  plt.xlabel('ResNet18 width parameter')
-  plt.ylabel('Test error')
-  plt.title('Test Error for different noise level ')
-  plt.show()
+  plt.xlabel('CNN width parameter')
+  plt.ylabel('Train error')
+  plt.title('Train Error for SGD and Adam Optimizer')
+  #plt.show()
