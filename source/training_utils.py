@@ -95,4 +95,4 @@ def predict(
     test_loss /= len(test_dataloader.sampler)
     accuracy = 100.0 * correct / len(test_dataloader.sampler)
 
-    return test_loss, accuracy
+    return test_loss, accuracy.item()

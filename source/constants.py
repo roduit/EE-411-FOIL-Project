@@ -14,13 +14,13 @@ import seaborn as sns
 BATCH_SIZE = 128
 TEST_BATCH_SIZE  = 128
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-NUM_EPOCHS = 15
+NUM_EPOCHS = 50
 
 #Constants part1
 Adam_LR = 0.0001
 SGD_LR = 0.1
-NUM_TRAIN_SAMPLES = 30000
-NUM_TEST_SAMPLES = 6000
+NUM_TRAIN_SAMPLES = 10000
+NUM_TEST_SAMPLES = 2000
 
 #Plot constants
 color_palette = sns.color_palette('viridis')
