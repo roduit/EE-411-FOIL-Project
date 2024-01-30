@@ -62,7 +62,7 @@ def display_error(error_lists, width_model_list,noise_ratio_list,train = False):
       train (bool, optional): True if the error is the train error, False if it is the test error. Defaults to False.
   """
   for noise_level, noise_curve in enumerate(error_lists):
-    plt.plot(width_model_list, noise_curve, '-',label = f'noise : {int(noise_ratio_list[noise_level]*100)}%')
+    sns.lineplot(x=width_model_list,y=noise_curve, color=constants.color_palette[2*noise_level],label = f'noise : {int(noise_ratio_list[noise_level]*100)}%')
   plt.legend()
   plt.xlabel('ResNet18 width parameter')
   if train:
@@ -81,7 +81,7 @@ def display_losses(losses, width_model_list,noise_ratio_list):
       noise_ratio_list (list): list of noise ratio
   """
   for noise_level, noise_curve in enumerate(losses):
-    plt.plot(width_model_list, noise_curve, '-',label = f'noise : {int(noise_ratio_list[noise_level]*100)}%')
+    sns.lineplot(width_model_list, noise_curve,color=constants.color_palette[2*noise_level],label = f'noise : {int(noise_ratio_list[noise_level]*100)}%')
   plt.legend()
   plt.xlabel('ResNet18 width parameter')
   plt.ylabel('Loss')
