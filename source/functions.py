@@ -31,6 +31,28 @@ dataset_classes = {
     'CIFAR10': NoisyCIFAR10,
     'MNIST': NoisyMNIST
 }
+# Define model creation functions
+def make_resnet18k_2channels_MNIST(k):
+    return make_resnet18k_2channels(k=k).to(constants.DEVICE)
+
+def make_resnet18k_3channels_CIFAR10(k):
+    return make_resnet18k_3channels(k=k, num_classes=10).to(constants.DEVICE)
+
+def make_resnet18k_3channels_CIFAR100(k):
+    return make_resnet18k_3channels(k=k, num_classes=100).to(constants.DEVICE)
+
+def make_cnn_CIFAR10(k):
+    return make_cnn(c=k).to(constants.DEVICE)
+
+def make_cnn_CIFAR100(k):
+    return make_cnn(c=k, num_classes=100).to(constants.DEVICE)
+model_creation_functions = {
+    ('ResNet', 'MNIST'): make_resnet18k_2channels_MNIST,
+    ('ResNet', 'CIFAR10'): make_resnet18k_3channels_CIFAR10,
+    ('ResNet', 'CIFAR100'): make_resnet18k_3channels_CIFAR100,
+    ('CNN', 'CIFAR10'): make_cnn_CIFAR10,
+    ('CNN', 'CIFAR100'): make_cnn_CIFAR100
+}
 
 def train_models(noise_ratio_list, width_model_list, optimizer='Adam', model='ResNet',dataset_name='MNIST'):
     #initialize lists for storing results
@@ -75,20 +97,12 @@ def train_models(noise_ratio_list, width_model_list, optimizer='Adam', model='Re
         # Iterate over different widths
         for width in width_model_list:
             out.update(IPython.display.Pretty('Training for width ' + str(width) + '/' + str(width_model_list[-1])))
-
-            #Define model
-            if model == 'ResNet' and dataset_name == 'MNIST':  
-                ResNet = make_resnet18k_2channels(k=width)
-                cnn = ResNet.to(constants.DEVICE)
-            elif model == 'ResNet' and dataset_name == 'CIFAR10':
-                ResNet = make_resnet18k_3channels(k=width,num_classes=10)
-                cnn = ResNet.to(constants.DEVICE)
-            elif model == 'ResNet' and dataset_name == 'CIFAR100':
-                ResNet = make_resnet18k_3channels(k=width,num_classes=100)
-                cnn = ResNet.to(constants.DEVICE)
+            # Create model
+            if (model, dataset_name) in model_creation_functions:
+                ModelCreationFunction = model_creation_functions[(model, dataset_name)]
+                cnn = ModelCreationFunction(width)
             else:
-                CNN = make_cnn(c = width)
-                cnn = CNN.to(constants.DEVICE)
+                raise ValueError(f"Invalid model-dataset combination: {model}-{dataset_name}")
             if optimizer == 'SGD':
                 optimizer = torch.optim.SGD(cnn.parameters(), lr=constants.SGD_LR)
             else:
