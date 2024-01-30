@@ -9,20 +9,20 @@
 import numpy as np
 import copy
 import torch
-import matplotlib.pyplot as plt
 import time
-from torch.utils.data import SubsetRandomSampler
 from datetime import timedelta
 import IPython
 import time
 
 #Import files
 import constants
-from models.resnet18k import make_resnet18k
+from models.resnet18k_2channels import make_resnet18k_2channels
+from models.resnet18k_3channels import make_resnet18k_3channels
 from training_utils import fit, predict
-
+from models.mcnn import make_cnn
 
 def label_noise(dataset, noise_ratio=0.1, seed = 0):
+    
     np.random.seed(seed)
 
     # Make a deep copy of the dataset
@@ -43,21 +43,21 @@ def label_noise(dataset, noise_ratio=0.1, seed = 0):
 
 def get_dataloaders(train_dataset, test_dataset, subsample_train_indices, subsample_test_indices, noise_ratio):
     noisy_train_dataset = label_noise(train_dataset, noise_ratio=noise_ratio)
+    train_subset = torch.utils.data.Subset(noisy_train_dataset, subsample_train_indices)
     noisy_train_dataloader = torch.utils.data.DataLoader(
-        dataset=noisy_train_dataset,
+        dataset=train_subset,
         batch_size=constants.BATCH_SIZE,
-        sampler=SubsetRandomSampler(subsample_train_indices),
         num_workers=2)
     
     test_subset = torch.utils.data.Subset(test_dataset, subsample_test_indices)
     test_dataloader = torch.utils.data.DataLoader(
-        test_subset, 
+        dataset=test_subset, 
         batch_size=constants.TEST_BATCH_SIZE, 
         shuffle=False,
         num_workers=2)
     return noisy_train_dataloader, test_dataloader
 
-def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset, optimizer='Adam', model='ResNet'):
+def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset, optimizer='Adam', model='ResNet',dataset_name='MNIST'):
     #initialize lists for storing results
     train_losses = []
     train_accuracies = []
@@ -90,8 +90,14 @@ def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset,
             out.update(IPython.display.Pretty('Training for width ' + str(width) + '/' + str(width_model_list[-1])))
 
             #Define model
-            if model == 'ResNet':  
-                ResNet = make_resnet18k(k=width)
+            if model == 'ResNet' and dataset_name == 'MNIST':  
+                ResNet = make_resnet18k_2channels(k=width)
+                cnn = ResNet.to(constants.DEVICE)
+            elif model == 'ResNet' and dataset_name == 'CIFAR10':
+                ResNet = make_resnet18k_3channels(k=width,num_classes=10)
+                cnn = ResNet.to(constants.DEVICE)
+            elif model == 'ResNet' and dataset_name == 'CIFAR100':
+                ResNet = make_resnet18k_3channels(k=width,num_classes=100)
                 cnn = ResNet.to(constants.DEVICE)
             else:
                 CNN = make_cnn(c = width)

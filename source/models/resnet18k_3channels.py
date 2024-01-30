@@ -1,3 +1,6 @@
+## ResNet18 for CIFAR
+## Based on: https://github.com/kuangliu/pytorch-cifar/blob/master/models/preact_resnet.py
+
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -34,8 +37,7 @@ class PreActResNet(nn.Module):
         self.in_planes = init_channels
         c = init_channels
 
-        # Adjust the number of input channels for MNIST (1 instead of 3)
-        self.conv1 = nn.Conv2d(1, c, kernel_size=3,
+        self.conv1 = nn.Conv2d(3, c, kernel_size=3,
                                stride=1, padding=1, bias=False)
         self.layer1 = self._make_layer(block, c, num_blocks[0], stride=1)
         self.layer2 = self._make_layer(block, 2*c, num_blocks[1], stride=2)
@@ -44,6 +46,7 @@ class PreActResNet(nn.Module):
         self.linear = nn.Linear(8*c*block.expansion, num_classes)
 
     def _make_layer(self, block, planes, num_blocks, stride):
+        # eg: [2, 1, 1, ..., 1]. Only the first one downsamples.
         strides = [stride] + [1]*(num_blocks-1)
         layers = []
         for stride in strides:
@@ -62,6 +65,6 @@ class PreActResNet(nn.Module):
         out = self.linear(out)
         return out
 
-def make_resnet18k(k=64, num_classes=10) -> PreActResNet:
+def make_resnet18k_3channels(k=64, num_classes=10) -> PreActResNet:
     ''' Returns a ResNet18 with width parameter k. (k=64 is standard ResNet18)'''
     return PreActResNet(PreActBlock, [2, 2, 2, 2], num_classes=num_classes, init_channels=k)
