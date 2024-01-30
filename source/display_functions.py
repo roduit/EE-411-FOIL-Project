@@ -88,17 +88,21 @@ def display_losses(losses, width_model_list,noise_ratio_list):
   plt.title('Loss as a function of the width parameter')
   plt.show()
 
-def display_optimizer_stats(optimizer_stats, width_model_list,noise_ratio_list):
+def display_optimizer_stats(adam_error, sgd_error, width_model_list, train=False):
   """Function that display the optimizer stats as a function of the width parameter
   Args:
       optimizer_stats (list): list of lists containing the optimizer stats for each width parameter
       width_model_list (list): list of width parameters
       noise_ratio_list (list): list of noise ratio
   """
-  for noise_level, noise_curve in enumerate(optimizer_stats):
-    plt.plot(width_model_list, noise_curve, '-',label = f'noise : {int(noise_ratio_list[noise_level]*100)}%')
+  plt.plot(width_model_list, adam_error, '-',label = 'Adam')
+  plt.plot(width_model_list, sgd_error, '-',label = 'SGD')
   plt.legend()
-  plt.xlabel('ResNet18 width parameter')
-  plt.ylabel('Optimizer stats')
-  plt.title('Optimizer stats as a function of the width parameter')
+  if train:
+    plt.ylabel('Train error')
+    plt.title('Train Error as a function of the width parameter')
+  else:
+       plt.ylabel('Test error')
+       plt.title('Test Error as a function of the width parameter')
+  plt.xlabel('CNN width parameter')
   plt.show()
