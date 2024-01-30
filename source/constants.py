@@ -25,7 +25,7 @@ NUM_EPOCHS = 1
 #Constants part1
 Adam_LR = 0.0001
 SGD_LR = 0.1
-NUM_TRAIN_SAMPLES = 60000
+NUM_TRAIN_SAMPLES = 100
 NUM_TEST_SAMPLES = 1
 
 #Plot constants

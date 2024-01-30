@@ -19,7 +19,6 @@ def train_epoch(
     In our stochastic setting our code follows a very specific "path". First, we load the batch
     a single batch and zero the optimizer. Then we perform the forward pass, compute the gradients and perform the backward pass. And ...repeat!
     """
-
     running_loss = 0.0
     model = model.to(device)
     model.train()
@@ -44,7 +43,6 @@ def train_epoch(
 
         # print statistics
         running_loss += loss.item()
-
     return running_loss / len(train_dataloader)
 
 

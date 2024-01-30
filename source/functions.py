@@ -13,6 +13,8 @@ import time
 from datetime import timedelta
 import IPython
 import time
+from torchvision import datasets
+from torch.utils.data import Dataset
 
 #Import files
 import constants
@@ -20,55 +22,43 @@ from models.resnet18k_2channels import make_resnet18k_2channels
 from models.resnet18k_3channels import make_resnet18k_3channels
 from training_utils import fit, predict
 from models.mcnn import make_cnn
+from data_classes import*
 
-def label_noise(dataset, noise_ratio=0.1, seed = 0):
-    
-    np.random.seed(seed)
+#Define dictionary constant
+#Datasets
+dataset_classes = {
+    'CIFAR100': NoisyCIFAR100,
+    'CIFAR10': NoisyCIFAR10,
+    'MNIST': NoisyMNIST
+}
 
-    # Make a deep copy of the dataset
-    noisy_dataset = copy.deepcopy(dataset)
-
-    total_images = len(noisy_dataset)
-
-    num_noisy_images = int(total_images * noise_ratio)
-
-    indices = np.random.choice(total_images, num_noisy_images, replace=False)
-
-    num_classes = len(np.unique(noisy_dataset.targets))
-
-    for idx in indices:
-        noisy_dataset.targets[idx] = torch.randint(0, num_classes, (1,))
-
-    return noisy_dataset
-
-def get_dataloaders(train_dataset, test_dataset, subsample_train_indices, subsample_test_indices, noise_ratio):
-    noisy_train_dataset = label_noise(train_dataset, noise_ratio=noise_ratio)
-    train_subset = torch.utils.data.Subset(noisy_train_dataset, subsample_train_indices)
-    noisy_train_dataloader = torch.utils.data.DataLoader(
-        dataset=train_subset,
-        batch_size=constants.BATCH_SIZE,
-        num_workers=2)
-    
-    test_subset = torch.utils.data.Subset(test_dataset, subsample_test_indices)
-    test_dataloader = torch.utils.data.DataLoader(
-        dataset=test_subset, 
-        batch_size=constants.TEST_BATCH_SIZE, 
-        shuffle=False,
-        num_workers=2)
-    return noisy_train_dataloader, test_dataloader
-
-def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset, optimizer='Adam', model='ResNet',dataset_name='MNIST'):
+def train_models(noise_ratio_list, width_model_list, optimizer='Adam', model='ResNet',dataset_name='MNIST'):
     #initialize lists for storing results
     train_losses = []
     train_accuracies = []
     test_losses = []
     test_accuracies = []
 
-    subsample_train_indices = torch.randperm(len(train_dataset))[:constants.NUM_TRAIN_SAMPLES]
-    subsample_test_indices = torch.randperm(len(test_dataset))[:constants.NUM_TEST_SAMPLES]
-
     for noise_ratio in noise_ratio_list:
 
+        #Get Dataloader for train and test
+        if dataset_name in dataset_classes:
+            DatasetClass = dataset_classes[dataset_name]
+            train_dataset = DatasetClass(train=True, noise_ratio=noise_ratio,num_samples=constants.NUM_TRAIN_SAMPLES)
+            test_dataset = DatasetClass(train=False, noise_ratio=noise_ratio,num_samples=constants.NUM_TEST_SAMPLES)
+
+            train_dataloader = torch.utils.data.DataLoader(
+                                dataset=train_dataset,
+                                batch_size=constants.BATCH_SIZE,
+                                num_workers=2)
+            test_dataloader = torch.utils.data.DataLoader(
+                                dataset=test_dataset, 
+                                batch_size=constants.TEST_BATCH_SIZE, 
+                                shuffle=False,
+                                num_workers=2)
+        else:
+            raise ValueError(f"Invalid dataset name: {dataset_name}")
+        
         # Display parameters
         print(f'Model with noise ratio {noise_ratio}')
         out = display(IPython.display.Pretty('Starting'), display_id=True)
@@ -79,9 +69,6 @@ def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset,
         noise_train_acc = []
         noise_test_loss = []
         noise_test_acc = []
-
-        #Define dataloaders
-        noisy_train_dataloader, test_dataloader = get_dataloaders(train_dataset, test_dataset, subsample_train_indices, subsample_test_indices, noise_ratio)
 
         out_epoch = display(IPython.display.Pretty('Starting'), display_id=True)
 
@@ -112,7 +99,7 @@ def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset,
             #Train model
             losses = fit(
                 model=cnn,
-                train_dataloader=noisy_train_dataloader,
+                train_dataloader=train_dataloader,
                 optimizer=optimizer,
                 epochs=constants.NUM_EPOCHS,
                 device=constants.DEVICE,
@@ -121,7 +108,7 @@ def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset,
             )
 
             #Evaluate model
-            train_loss, acc_train = predict(model=cnn, test_dataloader=noisy_train_dataloader, device=constants.DEVICE)
+            train_loss, acc_train = predict(model=cnn, test_dataloader=train_dataloader, device=constants.DEVICE)
             test_loss, acc = predict(model=cnn, test_dataloader=test_dataloader, device=constants.DEVICE)
 
             #Store results
