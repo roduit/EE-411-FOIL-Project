@@ -46,12 +46,25 @@ def make_cnn_CIFAR10(k):
 
 def make_cnn_CIFAR100(k):
     return make_cnn(c=k, num_classes=100).to(constants.DEVICE)
+
+# Define optimizer creation functions
+def make_SGD(cnn):
+    return torch.optim.SGD(cnn.parameters(), lr=constants.SGD_LR)
+
+def make_Adam(cnn):
+    return torch.optim.Adam(cnn.parameters(), lr=constants.Adam_LR)
+
 model_creation_functions = {
     ('ResNet', 'MNIST'): make_resnet18k_2channels_MNIST,
     ('ResNet', 'CIFAR10'): make_resnet18k_3channels_CIFAR10,
     ('ResNet', 'CIFAR100'): make_resnet18k_3channels_CIFAR100,
     ('CNN', 'CIFAR10'): make_cnn_CIFAR10,
     ('CNN', 'CIFAR100'): make_cnn_CIFAR100
+}
+# Map optimizer names to creation functions
+optimizer_creation_functions = {
+    'SGD': make_SGD,
+    'Adam': make_Adam
 }
 
 def train_models(noise_ratio_list, width_model_list, optimizer='Adam', model='ResNet',dataset_name='MNIST'):
@@ -103,10 +116,13 @@ def train_models(noise_ratio_list, width_model_list, optimizer='Adam', model='Re
                 cnn = ModelCreationFunction(width)
             else:
                 raise ValueError(f"Invalid model-dataset combination: {model}-{dataset_name}")
-            if optimizer == 'SGD':
-                optimizer = torch.optim.SGD(cnn.parameters(), lr=constants.SGD_LR)
+            # Create optimizer
+            if optimizer in optimizer_creation_functions:
+                OptimizerCreationFunction = optimizer_creation_functions[optimizer]
+                optimizer = OptimizerCreationFunction(cnn)
             else:
-                optimizer = torch.optim.Adam(cnn.parameters(), lr=constants.Adam_LR)
+                raise ValueError(f"Invalid optimizer name: {optimizer}")
+            # Create scheduler
             scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
                 optimizer, mode="min", factor=0.1, patience=2, verbose=False
             )
@@ -145,3 +161,52 @@ def train_models(noise_ratio_list, width_model_list, optimizer='Adam', model='Re
         print('******************')
 
     return train_losses, train_accuracies, test_losses, test_accuracies
+
+def model_convergence(optimizer='Adam', model='ResNet',dataset_name='MNIST',num_epochs=10, noise_ratio=0.1, width=1):
+    print(f'Training model')
+    out_epoch = display(IPython.display.Pretty('Starting'), display_id=True)
+    if dataset_name in dataset_classes:
+        DatasetClass = dataset_classes[dataset_name]
+        train_dataset = DatasetClass(train=True, noise_ratio=noise_ratio,num_samples=constants.NUM_TRAIN_SAMPLES)
+        test_dataset = DatasetClass(train=False, noise_ratio=noise_ratio,num_samples=constants.NUM_TEST_SAMPLES)
+
+        train_dataloader = torch.utils.data.DataLoader(
+                            dataset=train_dataset,
+                            batch_size=constants.BATCH_SIZE,
+                            num_workers=2)
+        test_dataloader = torch.utils.data.DataLoader(
+                            dataset=test_dataset, 
+                            batch_size=constants.TEST_BATCH_SIZE, 
+                            shuffle=False,
+                            num_workers=2)
+    else:
+        raise ValueError(f"Invalid dataset name: {dataset_name}")
+    
+    if (model, dataset_name) in model_creation_functions:
+                ModelCreationFunction = model_creation_functions[(model, dataset_name)]
+                cnn = ModelCreationFunction(width)
+    else:
+        raise ValueError(f"Invalid model-dataset combination: {model}-{dataset_name}")
+    # Create optimizer
+    if optimizer in optimizer_creation_functions:
+        OptimizerCreationFunction = optimizer_creation_functions[optimizer]
+        optimizer = OptimizerCreationFunction(cnn)
+    else:
+        raise ValueError(f"Invalid optimizer name: {optimizer}")
+    # Create scheduler
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode="min", factor=0.1, patience=2, verbose=False
+    )
+    #Train model
+    losses = fit(
+        model=cnn,
+        train_dataloader=train_dataloader,
+        optimizer=optimizer,
+        epochs=num_epochs,
+        device=constants.DEVICE,
+        scheduler=scheduler,
+        text = out_epoch
+    )
+    test_loss,test_accuracy = predict(model=cnn, test_dataloader=test_dataloader, device=constants.DEVICE)
+    
+    return losses, test_loss,test_accuracy
