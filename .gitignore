@@ -1,5 +1,5 @@
 *.csv
-*/data
+/data
 **/__pycache__/
 *.png
 *.DS_Store

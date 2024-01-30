@@ -125,35 +125,35 @@ def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset)
         out_epoch = display(IPython.display.Pretty('Starting'), display_id=True)
         # Iterate over different widths
         for width in width_model_list:
-          out.update(IPython.display.Pretty('Training for width ' + str(width) + '/' + str(width_model_list[-1])))
-          #Define model
-          ResNet = make_resnet18k(k=width)
-          cnn = ResNet.to(constants.DEVICE)
-          optimizer = torch.optim.Adam(cnn.parameters(), lr=constants.Adam_LR)
-          scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-              optimizer, mode="min", factor=0.1, patience=2, verbose=False
-          )
-          #Train model
-          losses = fit(
-              model=cnn,
-              train_dataloader=noisy_train_dataloader,
-              optimizer=optimizer,
-              epochs=constants.NUM_EPOCHS,
-              device=constants.DEVICE,
-              scheduler=scheduler,
-              text = out_epoch
-          )
+            out.update(IPython.display.Pretty('Training for width ' + str(width) + '/' + str(width_model_list[-1])))
+            #Define model
+            ResNet = make_resnet18k(k=width)
+            cnn = ResNet.to(constants.DEVICE)
+            optimizer = torch.optim.Adam(cnn.parameters(), lr=constants.Adam_LR)
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                optimizer, mode="min", factor=0.1, patience=2, verbose=False
+            )
+            #Train model
+            losses = fit(
+                model=cnn,
+                train_dataloader=noisy_train_dataloader,
+                optimizer=optimizer,
+                epochs=constants.NUM_EPOCHS,
+                device=constants.DEVICE,
+                scheduler=scheduler,
+                text = out_epoch
+            )
 
-          #Evaluate model
-          train_loss, acc_train = predict(model=cnn, test_dataloader=noisy_train_dataloader, device=constants.DEVICE)
-          test_loss, acc = predict(model=cnn, test_dataloader=noisy_test_dataloader, device=constants.DEVICE)
+            #Evaluate model
+            train_loss, acc_train = predict(model=cnn, test_dataloader=noisy_train_dataloader, device=constants.DEVICE)
+            test_loss, acc = predict(model=cnn, test_dataloader=noisy_test_dataloader, device=constants.DEVICE)
+            print(train_loss)
+            #Store results
+            noise_train_loss.append(train_loss)
+            noise_train_acc.append(acc_train)
 
-          #Store results
-          noise_train_loss.append(train_loss)
-          noise_train_acc.append(acc_train)
-
-          noise_test_loss.append(test_loss)
-          noise_test_acc.append(acc)
+            noise_test_loss.append(test_loss)
+            noise_test_acc.append(acc)
 
         #Store results
         train_losses.append(noise_train_loss)
