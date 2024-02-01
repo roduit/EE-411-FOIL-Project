@@ -9,95 +9,92 @@
 import numpy as np
 import copy
 import torch
-import matplotlib.pyplot as plt
 import time
-from torch.utils.data import SubsetRandomSampler
 from datetime import timedelta
 import IPython
 import time
+from torchvision import datasets
+from torch.utils.data import Dataset
 
 #Import files
 import constants
-from models.resnet18k import make_resnet18k
+from models.resnet18k_2channels import make_resnet18k_2channels
+from models.resnet18k_3channels import make_resnet18k_3channels
 from training_utils import fit, predict
+from models.mcnn import make_cnn
+from data_classes import*
 
-def label_noise(dataset, noise_ratio=0.1, seed = 0):
-    np.random.seed(seed)
+#Define dictionary constant
+#Datasets
+dataset_classes = {
+    'CIFAR100': NoisyCIFAR100,
+    'CIFAR10': NoisyCIFAR10,
+    'MNIST': NoisyMNIST
+}
+# Define model creation functions
+def make_resnet18k_2channels_MNIST(k):
+    return make_resnet18k_2channels(k=k).to(constants.DEVICE)
 
-    # Make a deep copy of the dataset
-    noisy_dataset = copy.deepcopy(dataset)
+def make_resnet18k_3channels_CIFAR10(k):
+    return make_resnet18k_3channels(k=k, num_classes=10).to(constants.DEVICE)
 
-    total_images = len(noisy_dataset)
+def make_resnet18k_3channels_CIFAR100(k):
+    return make_resnet18k_3channels(k=k, num_classes=100).to(constants.DEVICE)
 
-    num_noisy_images = int(total_images * noise_ratio)
+def make_cnn_CIFAR10(k):
+    return make_cnn(c=k).to(constants.DEVICE)
 
-    indices = np.random.choice(total_images, num_noisy_images, replace=False)
+def make_cnn_CIFAR100(k):
+    return make_cnn(c=k, num_classes=100).to(constants.DEVICE)
 
-    num_classes = len(np.unique(noisy_dataset.targets))
+# Define optimizer creation functions
+def make_SGD(cnn):
+    return torch.optim.SGD(cnn.parameters(), lr=constants.SGD_LR)
 
-    for idx in indices:
-        noisy_dataset.targets[idx] = torch.randint(0, num_classes, (1,))
+def make_Adam(cnn):
+    return torch.optim.Adam(cnn.parameters(), lr=constants.Adam_LR)
 
-    return noisy_dataset
+model_creation_functions = {
+    ('ResNet', 'MNIST'): make_resnet18k_2channels_MNIST,
+    ('ResNet', 'CIFAR10'): make_resnet18k_3channels_CIFAR10,
+    ('ResNet', 'CIFAR100'): make_resnet18k_3channels_CIFAR100,
+    ('CNN', 'CIFAR10'): make_cnn_CIFAR10,
+    ('CNN', 'CIFAR100'): make_cnn_CIFAR100
+}
+# Map optimizer names to creation functions
+optimizer_creation_functions = {
+    'SGD': make_SGD,
+    'Adam': make_Adam
+}
 
-def unpickle(file):
-    import pickle
-    with open(file, 'rb') as fo:
-        dict = pickle.load(fo, encoding='bytes')
-    return dict
-
-
-def visualize_dataset(dataset, num_images, label_names=None):
-    """
-    Visualizes examples from a given dataset.
-
-    Parameters:
-    - dataset: The dataset containing images.
-    - num_images: Number of images to visualize.
-
-    Note:
-    - The dataset should be a tuple (images, labels), where `images` is a
-      4D NumPy array with shape (num_samples, channels, height, width).
-    """
-
-    images, labels = dataset
-
-    # Ensure num_images is not greater than the total number of images in the dataset
-    num_images = min(num_images, len(images))
-
-    # Randomly select num_images indices
-    indices = np.random.choice(len(images), num_images, replace=False)
-
-    # Create a grid of subplots
-    rows = int(np.sqrt(num_images))
-    cols = int(np.ceil(num_images / rows))
-
-    plt.figure(figsize=(5, 5))
-
-    for i, idx in enumerate(indices, 1):
-        plt.subplot(rows, cols, i)
-        image = images[idx]
-        plt.imshow(image, cmap='gray')
-        if label_names is not None:
-            plt.title(f"Label: {label_names[labels[idx]]}")
-        else:
-            plt.title(f"Label: {labels[idx]}")
-        plt.axis('off')
-
-    plt.tight_layout()
-    plt.show()
-
-def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset):
+def train_models(noise_ratio_list, width_model_list, optimizer='Adam', model='ResNet',dataset_name='MNIST'):
     #initialize lists for storing results
     train_losses = []
     train_accuracies = []
     test_losses = []
     test_accuracies = []
 
-    subsample_train_indices = torch.randperm(len(train_dataset))[:constants.NUM_TRAIN_SAMPLES]
-    subsample_test_indices = torch.randperm(len(test_dataset))[:constants.NUM_TEST_SAMPLES]
-
     for noise_ratio in noise_ratio_list:
+
+        #Get Dataloader for train and test
+        if dataset_name in dataset_classes:
+            DatasetClass = dataset_classes[dataset_name]
+            train_dataset = DatasetClass(train=True, noise_ratio=noise_ratio,num_samples=constants.NUM_TRAIN_SAMPLES)
+            test_dataset = DatasetClass(train=False, noise_ratio=noise_ratio,num_samples=constants.NUM_TEST_SAMPLES)
+
+            train_dataloader = torch.utils.data.DataLoader(
+                                dataset=train_dataset,
+                                batch_size=constants.BATCH_SIZE,
+                                num_workers=2)
+            test_dataloader = torch.utils.data.DataLoader(
+                                dataset=test_dataset, 
+                                batch_size=constants.TEST_BATCH_SIZE, 
+                                shuffle=False,
+                                num_workers=2)
+        else:
+            raise ValueError(f"Invalid dataset name: {dataset_name}")
+        
+        # Display parameters
         print(f'Model with noise ratio {noise_ratio}')
         out = display(IPython.display.Pretty('Starting'), display_id=True)
         start_time = time.time()
@@ -108,60 +105,108 @@ def train_models(noise_ratio_list, width_model_list,train_dataset, test_dataset)
         noise_test_loss = []
         noise_test_acc = []
 
-        #Define dataloaders
-        noisy_train_dataset = label_noise(train_dataset, noise_ratio=noise_ratio)
-        noisy_train_dataloader = torch.utils.data.DataLoader(
-            dataset=noisy_train_dataset,
-            batch_size=constants.BATCH_SIZE,
-            sampler=SubsetRandomSampler(subsample_train_indices),
-            num_workers=2)
-        
-        test_subset = torch.utils.data.Subset(test_dataset, subsample_test_indices)
-        noisy_test_dataloader = torch.utils.data.DataLoader(
-            test_subset, 
-            batch_size=constants.TEST_BATCH_SIZE, 
-            shuffle=False,
-            num_workers=2)
         out_epoch = display(IPython.display.Pretty('Starting'), display_id=True)
+
         # Iterate over different widths
         for width in width_model_list:
-          out.update(IPython.display.Pretty('Training for width ' + str(width) + '/' + str(width_model_list[-1])))
-          #Define model
-          ResNet = make_resnet18k(k=width)
-          cnn = ResNet.to(constants.DEVICE)
-          optimizer = torch.optim.Adam(cnn.parameters(), lr=constants.Adam_LR)
-          scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-              optimizer, mode="min", factor=0.1, patience=2, verbose=False
-          )
-          #Train model
-          losses = fit(
-              model=cnn,
-              train_dataloader=noisy_train_dataloader,
-              optimizer=optimizer,
-              epochs=constants.NUM_EPOCHS,
-              device=constants.DEVICE,
-              scheduler=scheduler,
-              text = out_epoch
-          )
+            out.update(IPython.display.Pretty('Training for width ' + str(width) + '/' + str(width_model_list[-1])))
+            # Create model
+            if (model, dataset_name) in model_creation_functions:
+                ModelCreationFunction = model_creation_functions[(model, dataset_name)]
+                cnn = ModelCreationFunction(width)
+            else:
+                raise ValueError(f"Invalid model-dataset combination: {model}-{dataset_name}")
+            # Create optimizer
+            if optimizer in optimizer_creation_functions:
+                OptimizerCreationFunction = optimizer_creation_functions[optimizer]
+                optimizer = OptimizerCreationFunction(cnn)
+            else:
+                raise ValueError(f"Invalid optimizer name: {optimizer}")
+            # Create scheduler
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                optimizer, mode="min", factor=0.1, patience=2, verbose=False
+            )
+            #Train model
+            losses = fit(
+                model=cnn,
+                train_dataloader=train_dataloader,
+                optimizer=optimizer,
+                epochs=constants.NUM_EPOCHS,
+                device=constants.DEVICE,
+                scheduler=scheduler,
+                text = out_epoch
+            )
 
-          #Evaluate model
-          train_loss, acc_train = predict(model=cnn, test_dataloader=noisy_train_dataloader, device=constants.DEVICE)
-          test_loss, acc = predict(model=cnn, test_dataloader=noisy_test_dataloader, device=constants.DEVICE)
+            #Evaluate model
+            train_loss, acc_train = predict(model=cnn, test_dataloader=train_dataloader, device=constants.DEVICE)
+            test_loss, acc = predict(model=cnn, test_dataloader=test_dataloader, device=constants.DEVICE)
 
-          #Store results
-          noise_train_loss.append(train_loss)
-          noise_train_acc.append(acc_train)
+            #Store results
+            noise_train_loss.append(train_loss)
+            noise_train_acc.append(acc_train)
 
-          noise_test_loss.append(test_loss)
-          noise_test_acc.append(acc)
+            noise_test_loss.append(test_loss)
+            noise_test_acc.append(acc)
 
         #Store results
         train_losses.append(noise_train_loss)
         train_accuracies.append(noise_train_acc)
         test_losses.append(noise_test_loss)
         test_accuracies.append(noise_test_acc)
+
+        #Print statistics
         elapsed_time = time.time() - start_time
         elapsed_time = str(timedelta(seconds=elapsed_time))
         print(f'Noise ratio {noise_ratio} done. Duration: {elapsed_time}')
         print('******************')
+
     return train_losses, train_accuracies, test_losses, test_accuracies
+
+def model_convergence(optimizer='Adam', model='ResNet',dataset_name='MNIST',num_epochs=10, noise_ratio=0.1, width=1):
+    print(f'Training model')
+    out_epoch = display(IPython.display.Pretty('Starting'), display_id=True)
+    if dataset_name in dataset_classes:
+        DatasetClass = dataset_classes[dataset_name]
+        train_dataset = DatasetClass(train=True, noise_ratio=noise_ratio,num_samples=constants.NUM_TRAIN_SAMPLES)
+        test_dataset = DatasetClass(train=False, noise_ratio=noise_ratio,num_samples=constants.NUM_TEST_SAMPLES)
+
+        train_dataloader = torch.utils.data.DataLoader(
+                            dataset=train_dataset,
+                            batch_size=constants.BATCH_SIZE,
+                            num_workers=2)
+        test_dataloader = torch.utils.data.DataLoader(
+                            dataset=test_dataset, 
+                            batch_size=constants.TEST_BATCH_SIZE, 
+                            shuffle=False,
+                            num_workers=2)
+    else:
+        raise ValueError(f"Invalid dataset name: {dataset_name}")
+    
+    if (model, dataset_name) in model_creation_functions:
+                ModelCreationFunction = model_creation_functions[(model, dataset_name)]
+                cnn = ModelCreationFunction(width)
+    else:
+        raise ValueError(f"Invalid model-dataset combination: {model}-{dataset_name}")
+    # Create optimizer
+    if optimizer in optimizer_creation_functions:
+        OptimizerCreationFunction = optimizer_creation_functions[optimizer]
+        optimizer = OptimizerCreationFunction(cnn)
+    else:
+        raise ValueError(f"Invalid optimizer name: {optimizer}")
+    # Create scheduler
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode="min", factor=0.1, patience=2, verbose=False
+    )
+    #Train model
+    losses = fit(
+        model=cnn,
+        train_dataloader=train_dataloader,
+        optimizer=optimizer,
+        epochs=num_epochs,
+        device=constants.DEVICE,
+        scheduler=scheduler,
+        text = out_epoch
+    )
+    test_loss,test_accuracy = predict(model=cnn, test_dataloader=test_dataloader, device=constants.DEVICE)
+    
+    return losses, test_loss,test_accuracy
