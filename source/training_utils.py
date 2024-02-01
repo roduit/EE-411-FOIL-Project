@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 from torch.utils.data import DataLoader
+import pickle
 import IPython
 
 
@@ -72,6 +73,13 @@ def fit(
         text.update(IPython.display.Pretty('Epoch ' + str(epoch+1) +'/'+str(epochs)+ ': Loss = ' + str(running_loss)))
         losses.append(running_loss)
         scheduler.step(running_loss)
+
+    plt.title("Training curve")
+    plt.plot(range(epochs), losses, "b-")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.show()
+
 
     return losses
 
