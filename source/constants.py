@@ -16,6 +16,9 @@ PICKLE_FOLDER = os.path.join(DATA_FOLDER, 'pickle')
 FIG4_FOLDER = os.path.join(PICKLE_FOLDER, 'fig4')
 FIG6_FOLDER = os.path.join(PICKLE_FOLDER, 'fig6')
 
+#Results path
+RESULTS_FOLDER = '../ressources/report/img/'
+
 #Model constants
 BATCH_SIZE = 128
 TEST_BATCH_SIZE  = 128
