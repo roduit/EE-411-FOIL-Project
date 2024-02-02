@@ -11,11 +11,11 @@ import torch
 import seaborn as sns
 
 #Data path
-DATA_FOLDER = './data'
+DATA_FOLDER = '../data'
 PICKLE_FOLDER = os.path.join(DATA_FOLDER, 'pickle')
 FIG4_FOLDER = os.path.join(PICKLE_FOLDER, 'fig4')
 FIG6_FOLDER = os.path.join(PICKLE_FOLDER, 'fig6')
-CONVERGENCES_FOLDER = os.path.join(PICKLE_FOLDER, 'convergences')
+CONVERGENCES_FOLDER = os.path.join(PICKLE_FOLDER, 'convergence')
 
 #Model constants
 BATCH_SIZE = 128
