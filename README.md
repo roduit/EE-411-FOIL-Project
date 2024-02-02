@@ -15,18 +15,27 @@ EE-411: Fundamentals of Inference and Learning
 
 - [Abstract](#abstract)
 - [Project Structure](#project-structure)
+- [Conda Environment](#conda-environment)
 - [Contributors](#contributors)
 - [Theory and results](#theory-and-results)
 
 ## Abstract 
 
-Modern machine learning research shows that the classical bias-variance trade-off has some limits as model size increases. The purpose of this project is to reproduce a research study conducted by engineers from Harvard and OpenAI [Paper](https://arxiv.org/abs/1912.02292). This paper shows cases where increasing model size and data volume does not always lead to better performance.
+Modern machine learning research shows that the classical bias-variance trade-off has some limits as model size increases. The purpose of this project is to reproduce a research study conducted by engineers from Harvard and OpenAI [(Link to Publication)](https://arxiv.org/abs/1912.02292). This paper shows cases where increasing model size and data volume does not always lead to better performance.
 
 ## Project structure
 ```
 
 ```
-The folder *laboratories* contains all the laboratories of the course "EE-442: Wireless Receivers: Algorithms and Architectures". Some of the blocks used in the project come from these labs and are properly cited. *Project* folder contains the code and documentation of the proposed project about OFDM. In the *code* subfolders ofdm_main.m computes the solutions and ofdm_multipath.m can be used to generate simulation of a multipath environment.
+
+## Conda environment
+A conda environment, named projectFOIL, with all Python packages that you might need for running the project. You can install it with the following command : 
+
+`conda create --name projectFOIL --file requirements.txt`
+
+Once installed, to activate the environment, please use `conda activate projectFOIL`. 
+
+
 
 ## Contributors
 This project has been done by Vincent Roduit and Fabio Palmisano as a mandatory part of the course "EE-411: Fundamentals of Inference and Learning" given at Ecole Polytechnique Fédérale de Lausanne during the Fall semester of 2023.
