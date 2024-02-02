@@ -5,25 +5,32 @@
 # -*- python version : 3.11.6 -*-
 # -*- Description: Classes to load the datasets-*-
 
-#Import libraries
+# Import libraries
 from torchvision import transforms
 from torchvision import datasets
 from torch.utils.data import Dataset
 import numpy as np
 
-#import files
+# import files
 import constants
 
+
 class NoisyCIFAR100(Dataset):
-    def __init__(self, train=True, noise_ratio=0.1, augmentation=True, num_samples=None):
+    def __init__(
+        self, train=True, noise_ratio=0.1, augmentation=True, num_samples=None
+    ):
         transform = transforms.ToTensor()
         if augmentation:
-            transform = transforms.Compose([
-                transforms.RandomCrop(32, padding=4),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor()
-            ])
-        self.cifar100 = datasets.CIFAR100(root='../data/datasets', train=train, download=True, transform=transform)
+            transform = transforms.Compose(
+                [
+                    transforms.RandomCrop(32, padding=4),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                ]
+            )
+        self.cifar100 = datasets.CIFAR100(
+            root="../data/datasets", train=train, download=True, transform=transform
+        )
         self.noise_ratio = noise_ratio
 
         # Limit the number of samples if num_samples is provided
@@ -42,16 +49,23 @@ class NoisyCIFAR100(Dataset):
     def __len__(self):
         return len(self.cifar100)
 
+
 class NoisyCIFAR10(Dataset):
-    def __init__(self, train=True, noise_ratio=0.1, augmentation=False, num_samples=None):
+    def __init__(
+        self, train=True, noise_ratio=0.1, augmentation=False, num_samples=None
+    ):
         transform = transforms.ToTensor()
         if augmentation:
-            transform = transforms.Compose([
-                transforms.RandomCrop(32, padding=4),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor()
-            ])
-        self.cifar10 = datasets.CIFAR10(root='../data/datasets', train=train, download=True, transform=transform)
+            transform = transforms.Compose(
+                [
+                    transforms.RandomCrop(32, padding=4),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                ]
+            )
+        self.cifar10 = datasets.CIFAR10(
+            root="../data/datasets", train=train, download=True, transform=transform
+        )
         self.noise_ratio = noise_ratio
 
         # Limit the number of samples if num_samples is provided
@@ -72,15 +86,21 @@ class NoisyCIFAR10(Dataset):
 
 
 class NoisyMNIST(Dataset):
-    def __init__(self, train=True, noise_ratio=0.1, augmentation=False, num_samples=None):
+    def __init__(
+        self, train=True, noise_ratio=0.1, augmentation=False, num_samples=None
+    ):
         transform = transforms.ToTensor()
         if augmentation:
-            transform = transforms.Compose([
-                transforms.RandomCrop(32, padding=4),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor()
-            ])
-        self.mnist = datasets.MNIST(root='../data/datasets', train=train, download=True, transform=transform)
+            transform = transforms.Compose(
+                [
+                    transforms.RandomCrop(32, padding=4),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                ]
+            )
+        self.mnist = datasets.MNIST(
+            root="../data/datasets", train=train, download=True, transform=transform
+        )
         self.noise_ratio = noise_ratio
 
         # Limit the number of samples if num_samples is provided
