@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- author : Vincent Roduit - Fabio Palmisano -*-
 # -*- date : 2024-01-20 -*-
-# -*- Last revision: 2024-01-20 (Vincent Roduit)-*-
+# -*- Last revision: 2024-02-02 (Vincent Roduit)-*-
 # -*- python version : 3.11.6 -*-
 # -*- Description: Classes to load the datasets-*-
 
@@ -15,7 +15,7 @@ import numpy as np
 import constants
 
 class NoisyCIFAR100(Dataset):
-    def __init__(self, train=True, noise_ratio=0.1, augmentation=False, num_samples=None):
+    def __init__(self, train=True, noise_ratio=0.1, augmentation=True, num_samples=None):
         transform = transforms.ToTensor()
         if augmentation:
             transform = transforms.Compose([

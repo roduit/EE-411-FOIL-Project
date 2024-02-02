@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- author : Vincent Roduit -*-
 # -*- date : 2024-01-20 -*-
-# -*- Last revision: 2024-01-20 (Vincent Roduit)-*-
+# -*- Last revision: 2024-02-01 (Vincent Roduit)-*-
 # -*- python version : 3.11.6 -*-
 # -*- Description: Constants used for this project-*-
 

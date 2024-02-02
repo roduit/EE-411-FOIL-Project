@@ -23,6 +23,9 @@ from models.resnet18k_3channels import make_resnet18k_3channels
 from training_utils import fit, predict
 from models.mcnn import make_cnn
 from data_classes import*
+from data_utils import*
+
+# -------------------------------------- CONSTANTS -----------------------------------------------------------
 
 #Define dictionary constant
 #Datasets
@@ -67,7 +70,22 @@ optimizer_creation_functions = {
     'Adam': make_Adam
 }
 
-def train_models(noise_ratio_list, width_model_list, optimizer='Adam', model='ResNet',dataset_name='MNIST'):
+# -------------------------------------- FUNCTIONS -----------------------------------------------------------
+
+def train_models(noise_ratio_list, width_model_list, optimizer_name='Adam', model='ResNet',dataset_name='MNIST'):
+    """Train models with different noise ratios and widths
+    Args:
+        noise_ratio_list (list): list of noise ratios
+        width_model_list (list): list of width parameters
+        optimizer_name (str, optional): name of the optimizer. Defaults to 'Adam'.
+        model (str, optional): name of the model. Defaults to 'ResNet'.
+        dataset_name (str, optional): name of the dataset. Defaults to 'MNIST'.
+    Returns:
+        train_losses (list): list of lists containing the train loss for each noise ratio and width parameter
+        train_accuracies (list): list of lists containing the train accuracy for each noise ratio and width parameter
+        test_losses (list): list of lists containing the test loss for each noise ratio and width parameter
+        test_accuracies (list): list of lists containing the test accuracy for each noise ratio and width parameter
+    """
     #initialize lists for storing results
     train_losses = []
     train_accuracies = []
@@ -117,8 +135,8 @@ def train_models(noise_ratio_list, width_model_list, optimizer='Adam', model='Re
             else:
                 raise ValueError(f"Invalid model-dataset combination: {model}-{dataset_name}")
             # Create optimizer
-            if optimizer in optimizer_creation_functions:
-                OptimizerCreationFunction = optimizer_creation_functions[optimizer]
+            if optimizer_name in optimizer_creation_functions:
+                OptimizerCreationFunction = optimizer_creation_functions[optimizer_name]
                 optimizer = OptimizerCreationFunction(cnn)
             else:
                 raise ValueError(f"Invalid optimizer name: {optimizer}")
@@ -159,13 +177,34 @@ def train_models(noise_ratio_list, width_model_list, optimizer='Adam', model='Re
         elapsed_time = str(timedelta(seconds=elapsed_time))
         print(f'Noise ratio {noise_ratio} done. Duration: {elapsed_time}')
         print('******************')
+        save_pickle('train_losses.pkl', train_losses)
+        save_pickle('train_accuracies.pkl', train_accuracies)
+        save_pickle('test_losses.pkl', test_losses)
+        save_pickle('test_accuracies.pkl', test_accuracies)
 
     return train_losses, train_accuracies, test_losses, test_accuracies
 
 def model_convergence(optimizer='Adam', model='ResNet',dataset_name='MNIST',num_epochs=10, noise_ratio=0.1, width=1,scheduler=None):
+    """Train a model and return the losses and test accuracy
+    Args:
+        optimizer (str, optional): name of the optimizer. Defaults to 'Adam'.
+        model (str, optional): name of the model. Defaults to 'ResNet'.
+        dataset_name (str, optional): name of the dataset. Defaults to 'MNIST'.
+        num_epochs (int, optional): number of epochs to train. Defaults to 10.
+        noise_ratio (float, optional): noise ratio. Defaults to 0.1.
+        width (int, optional): width parameter. Defaults to 1.
+        scheduler (ReduceLROnPlateau, optional): learning rate scheduler. Defaults to None.
+    Returns:
+        losses (list): list of losses at each epoch
+        test_loss (float): The average loss on the test set
+        test_accuracy (float): The accuracy on the test set
+    """
+    # Print functions parameters
     print(f'Training model')
     start_time = time.time()
     out_epoch = display(IPython.display.Pretty('Starting'), display_id=True)
+
+    #Get Dataloader for train and test
     if dataset_name in dataset_classes:
         DatasetClass = dataset_classes[dataset_name]
         train_dataset = DatasetClass(train=True, noise_ratio=noise_ratio,num_samples=constants.NUM_TRAIN_SAMPLES)
@@ -208,7 +247,10 @@ def model_convergence(optimizer='Adam', model='ResNet',dataset_name='MNIST',num_
         scheduler=scheduler,
         text = out_epoch
     )
+    #Evaluate model
     test_loss,test_accuracy = predict(model=cnn, test_dataloader=test_dataloader, device=constants.DEVICE)
+
+    #Print statistics
     stop_time = time.time()
     elapsed_time = stop_time - start_time
     elapsed_time = str(timedelta(seconds=elapsed_time))

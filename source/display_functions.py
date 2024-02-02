@@ -106,3 +106,20 @@ def display_optimizer_stats(adam_error, sgd_error, width_model_list, train=False
        plt.title('Test Error as a function of the width parameter')
   plt.xlabel('CNN width parameter')
   plt.show()
+
+def visualize_convergence(losses, test_loss, test_accuracy, num_epochs, width):
+    """Vizualize the convergence of the training process
+    Args:
+        losses (list): list of losses at each epoch
+        test_loss (float): The average loss on the test set
+        test_accuracy (float): The accuracy on the test set
+        num_epochs (int): The number of epochs
+        width (int): The width of the model
+    """
+    plt.figure(figsize=(12, 6))
+    plt.title(f'Training loss for width = {width} and for {num_epochs} Epochs')
+    plt.plot(np.linspace(1, num_epochs, num_epochs), losses, label='Training loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.show()
