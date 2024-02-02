@@ -6,7 +6,7 @@
 # -*- Description: Functions used to train models-*-
 # -*- Source: Adapted from the course "Fundamentals of Inference and Learning" of EPFL -*-
 
-#import librairies
+# import librairies
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -19,11 +19,12 @@ import pickle
 import IPython
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
+
 def train_epoch(
     model: nn.Module,
     train_dataloader: DataLoader,
     optimizer: torch.optim.Optimizer,
-    device: torch.device
+    device: torch.device,
 ):
     """This Function trains the model for one epoch. It is called by the fit() method.
     Args:
@@ -60,6 +61,7 @@ def train_epoch(
         running_loss += loss.item()
     return running_loss / len(train_dataloader)
 
+
 def fit(
     model: nn.Module,
     train_dataloader: DataLoader,
@@ -69,7 +71,7 @@ def fit(
     scheduler: ReduceLROnPlateau,
     text,
     patience: int = 5,
-    verbose=False
+    verbose=False,
 ):
     """This function trains the model for a given number of epochs.
     Args:
@@ -88,7 +90,7 @@ def fit(
 
     # keep track of the losses in order to visualize them later
     losses = []
-    best_loss = float('inf')
+    best_loss = float("inf")
     no_improve_epochs = 0
 
     for epoch in range(epochs):
@@ -113,11 +115,22 @@ def fit(
 
         # If loss hasn't improved for a certain number of epochs, stop training
         if (no_improve_epochs >= patience) or running_loss < 1e-4:
-          if verbose:
-            print(f'Early stopping at epoch {epoch+1}')
-          break
+            if verbose:
+                print(f"Early stopping at epoch {epoch+1}")
+            break
 
-        text.update(IPython.display.Pretty('Epoch ' + str(epoch+1) +'/'+str(epochs)+ ': Loss = ' + str(running_loss) + ' Time = ' + str(time.time() - start_time)))
+        text.update(
+            IPython.display.Pretty(
+                "Epoch "
+                + str(epoch + 1)
+                + "/"
+                + str(epochs)
+                + ": Loss = "
+                + str(running_loss)
+                + " Time = "
+                + str(time.time() - start_time)
+            )
+        )
     return losses
 
 

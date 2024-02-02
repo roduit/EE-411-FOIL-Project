@@ -5,8 +5,9 @@
 # -*- python version : 3.11.6 -*-
 # -*- Description: Functions to open and store files in binary format-*-
 
-#import libraries
+# import libraries
 import pickle
+
 
 def save_pickle(result, file_path="pickle"):
     """Save a variable in a binary format
@@ -19,6 +20,7 @@ def save_pickle(result, file_path="pickle"):
     """
     with open(file_path, "wb") as file:
         pickle.dump(result, file)
+
 
 def open_pickle(file_path="pickle"):
     """Open a variable in a binary format
@@ -33,6 +35,7 @@ def open_pickle(file_path="pickle"):
         result = pickle.load(file)
     return result
 
+
 def unpickle(file):
     """Open a variable in a binary format
     Args:
@@ -41,6 +44,7 @@ def unpickle(file):
         dict: return diciotnary
     """
     import pickle
-    with open(file, 'rb') as fo:
-        dict = pickle.load(fo, encoding='bytes')
+
+    with open(file, "rb") as fo:
+        dict = pickle.load(fo, encoding="bytes")
     return dict
