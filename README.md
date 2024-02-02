@@ -63,9 +63,9 @@ The project is segmented into three primary sections. The initial phase involves
 ## Conda environment
 A conda environment, named projectFOIL, with all Python packages that you might need for running the project. You can install it with the following command : 
 
-`conda create --name projectFOIL --file requirements.txt`
+`conda env create -f requirements.yml`
 
-Once installed, to activate the environment, please use `conda activate projectFOIL`. 
+Once installed, to activate the environment, please use `conda activate FOILproject`. 
 
 
 ## Contributors
