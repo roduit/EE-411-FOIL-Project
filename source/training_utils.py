@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import torchvision
 import time
 from torch.utils.data import DataLoader
+import pickle
 import IPython
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
@@ -92,6 +93,13 @@ def fit(
             break
 
         text.update(IPython.display.Pretty('Epoch ' + str(epoch+1) +'/'+str(epochs)+ ': Loss = ' + str(running_loss) + ' Time = ' + str(time.time() - start_time)))
+
+    plt.title("Training curve")
+    plt.plot(range(epochs), losses, "b-")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.show()
+
 
     return losses
 
