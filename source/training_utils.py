@@ -4,9 +4,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
+import time
 from torch.utils.data import DataLoader
 import IPython
-
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 def train_epoch(
     model: nn.Module,
@@ -45,15 +46,15 @@ def train_epoch(
         running_loss += loss.item()
     return running_loss / len(train_dataloader)
 
-
 def fit(
     model: nn.Module,
     train_dataloader: DataLoader,
     optimizer: torch.optim.Optimizer,
     epochs: int,
     device: torch.device,
-    scheduler:torch.optim.lr_scheduler,
-    text
+    scheduler: ReduceLROnPlateau,
+    text,
+    patience: int = 5,
 ):
     """
     the fit method simply calls the train_epoch() method for a
@@ -62,16 +63,35 @@ def fit(
 
     # keep track of the losses in order to visualize them later
     losses = []
+    best_loss = float('inf')
+    no_improve_epochs = 0
+
     for epoch in range(epochs):
+        start_time = time.time()
         running_loss = train_epoch(
             model=model,
             train_dataloader=train_dataloader,
             optimizer=optimizer,
             device=device,
         )
-        text.update(IPython.display.Pretty('Epoch ' + str(epoch+1) +'/'+str(epochs)+ ': Loss = ' + str(running_loss)))
         losses.append(running_loss)
-        scheduler.step(running_loss)
+
+        if scheduler is not None:
+            scheduler.step(running_loss)
+
+        # Check if loss has improved
+        if running_loss < best_loss:
+            best_loss = running_loss
+            no_improve_epochs = 0
+        else:
+            no_improve_epochs += 1
+
+        # If loss hasn't improved for a certain number of epochs, stop training
+        if no_improve_epochs >= patience:
+            print(f'Early stopping at epoch {epoch+1}')
+            break
+
+        text.update(IPython.display.Pretty('Epoch ' + str(epoch+1) +'/'+str(epochs)+ ': Loss = ' + str(running_loss) + ' Time = ' + str(time.time() - start_time)))
 
     return losses
 

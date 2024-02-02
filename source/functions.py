@@ -162,8 +162,9 @@ def train_models(noise_ratio_list, width_model_list, optimizer='Adam', model='Re
 
     return train_losses, train_accuracies, test_losses, test_accuracies
 
-def model_convergence(optimizer='Adam', model='ResNet',dataset_name='MNIST',num_epochs=10, noise_ratio=0.1, width=1):
+def model_convergence(optimizer='Adam', model='ResNet',dataset_name='MNIST',num_epochs=10, noise_ratio=0.1, width=1,scheduler=None):
     print(f'Training model')
+    start_time = time.time()
     out_epoch = display(IPython.display.Pretty('Starting'), display_id=True)
     if dataset_name in dataset_classes:
         DatasetClass = dataset_classes[dataset_name]
@@ -193,10 +194,10 @@ def model_convergence(optimizer='Adam', model='ResNet',dataset_name='MNIST',num_
         optimizer = OptimizerCreationFunction(cnn)
     else:
         raise ValueError(f"Invalid optimizer name: {optimizer}")
-    # Create scheduler
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode="min", factor=0.1, patience=2, verbose=False
-    )
+    if scheduler is not None:
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, mode="min", factor=0.1, patience=2, verbose=False
+        )
     #Train model
     losses = fit(
         model=cnn,
@@ -208,5 +209,8 @@ def model_convergence(optimizer='Adam', model='ResNet',dataset_name='MNIST',num_
         text = out_epoch
     )
     test_loss,test_accuracy = predict(model=cnn, test_dataloader=test_dataloader, device=constants.DEVICE)
-    
+    stop_time = time.time()
+    elapsed_time = stop_time - start_time
+    elapsed_time = str(timedelta(seconds=elapsed_time))
+    print(f'Training done. Duration: {elapsed_time}')
     return losses, test_loss,test_accuracy
