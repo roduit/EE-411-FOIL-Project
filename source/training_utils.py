@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+# -*- author : Vincent Roduit -*-
+# -*- date : 2024-01-20 -*-
+# -*- Last revision: 2024-01-20 (Vincent Roduit)-*-
+# -*- python version : 3.11.6 -*-
+# -*- Description: Functions used to train models-*-
+# -*- Source: Adapted from the course "Fundamentals of Inference and Learning" of EPFL -*-
+
+#import librairies
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -16,10 +25,14 @@ def train_epoch(
     optimizer: torch.optim.Optimizer,
     device: torch.device
 ):
-    """
-    This function implements the core components of any Neural Network training regiment.
-    In our stochastic setting our code follows a very specific "path". First, we load the batch
-    a single batch and zero the optimizer. Then we perform the forward pass, compute the gradients and perform the backward pass. And ...repeat!
+    """This Function trains the model for one epoch. It is called by the fit() method.
+    Args:
+        model (nn.Module): The model to train
+        train_dataloader (DataLoader): The training dataloader
+        optimizer (torch.optim.Optimizer): The optimizer used for training
+        device (torch.device): The device on which the model is trained
+    Returns:
+        running_loss / len(train_dataloader) (float): The average loss over the epoch
     """
     running_loss = 0.0
     model = model.to(device)
@@ -56,10 +69,21 @@ def fit(
     scheduler: ReduceLROnPlateau,
     text,
     patience: int = 5,
+    verbose=False
 ):
-    """
-    the fit method simply calls the train_epoch() method for a
-    specified number of epochs.
+    """This function trains the model for a given number of epochs.
+    Args:
+        model (nn.Module): The model to train
+        train_dataloader (DataLoader): The training dataloader
+        optimizer (torch.optim.Optimizer): The optimizer used for training
+        epochs (int): The number of epochs to train
+        device (torch.device): The device on which the model is trained
+        scheduler (ReduceLROnPlateau): The learning rate scheduler
+        text (IPython.display.Pretty): The text to display the training progress
+        patience (int, optional): The number of epochs to wait for improvement before stopping the training. Defaults to 5.
+        verbose (bool, optional): If True, prints the loss at each epoch. Defaults to False.
+    Returns:
+        losses (list): The list of losses at each epoch
     """
 
     # keep track of the losses in order to visualize them later
@@ -88,25 +112,28 @@ def fit(
             no_improve_epochs += 1
 
         # If loss hasn't improved for a certain number of epochs, stop training
-        if no_improve_epochs >= patience:
+        if (no_improve_epochs >= patience) or running_loss < 1e-4:
+          if verbose:
             print(f'Early stopping at epoch {epoch+1}')
-            break
+          break
 
         text.update(IPython.display.Pretty('Epoch ' + str(epoch+1) +'/'+str(epochs)+ ': Loss = ' + str(running_loss) + ' Time = ' + str(time.time() - start_time)))
-
-    plt.title("Training curve")
-    plt.plot(range(epochs), losses, "b-")
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss")
-    plt.show()
-
-
     return losses
 
 
 def predict(
     model: nn.Module, test_dataloader: DataLoader, device: torch.device, verbose=True
 ):
+    """This function evaluates the model on the test set.
+    Args:
+        model (nn.Module): The model to evaluate
+        test_dataloader (DataLoader): The test dataloader
+        device (torch.device): The device on which the model is evaluated
+        verbose (bool, optional): If True, prints the loss and accuracy. Defaults to True.
+    Returns:
+        test_loss (float): The average loss on the test set
+        accuracy (float): The accuracy on the test set
+    """
     model.eval()
     test_loss = 0
     correct = 0
