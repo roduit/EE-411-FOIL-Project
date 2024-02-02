@@ -68,8 +68,7 @@ A conda environment, named projectFOIL, with all Python packages that you might 
 Once installed, to activate the environment, please use `conda activate projectFOIL`. 
 
 
-
 ## Contributors
 This project has been done by Vincent Roduit and Fabio Palmisano as a mandatory part of the course "EE-411: Fundamentals of Inference and Learning" given at Ecole Polytechnique Fédérale de Lausanne during the Fall semester of 2023.
 
-## Theory and results
+## Results
