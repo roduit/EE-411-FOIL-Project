@@ -38,7 +38,6 @@ Modern machine learning research shows that the classical bias-variance trade-of
 │   ├── logo-epfl.png
 │   └── report
 ├── source
-│   ├── __pycache__
 │   ├── constants.py
 │   ├── data_classes.py
 │   ├── data_utils.py
@@ -68,3 +67,8 @@ Once installed, to activate the environment, please use `conda activate FOILproj
 This project has been done by Vincent Roduit and Fabio Palmisano as a mandatory part of the course "EE-411: Fundamentals of Inference and Learning" given at Ecole Polytechnique Fédérale de Lausanne during the Fall semester of 2023.
 
 ## Results
+Figure 4 and 6 of the original paper has been reproduced. The derivation of the results can be found in file *source/main.ipynb*
+<img src="./ressources/report/img/fig4_test_error.png" alt="Example Image" width="192" height="108">
+</div>
+<img src="./ressources/report/img/fig4_train_error.png" alt="Example Image" width="192" height="108">
+</div>
