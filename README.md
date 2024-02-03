@@ -25,37 +25,33 @@ Modern machine learning research shows that the classical bias-variance trade-of
 
 ## Project structure
 ```
-├── Introduction
-│   ├── Visualize the Dataset
-│   │   ├── Define class dictionaries
-│   │   ├── Visualize Datasets
-│   │   |   ├── MNIST
-│   │   |   ├── CIFAR10
-│   │   |   └── CIFAR100
-│   ├── Effect of transformation
-│   │   ├── Horizontal Flip
-│   │   └── Random Crop 
-├── Some Experiments
-│   ├── Required time
-│   │   ├── CIFAR10 on T4
-│   │   ├── CIFAR10 on V100
-│   │   ├── CIFAR100 on T4
-│   │   ├── CIFAR100 on V100
-│   │   ├── MNIST on T4
-│   │   └── MNIST on V100
-│   ├── Testing the Convergence
-│   │   ├── for K = 4
-│   │   └── for K = 10
-│   ├── Result with/without Scheduler
-│   │   ├── No label noise
-│   │   └── Label noise 20%
-│   ├── Convergence with reduced datasets
-├── Figure 4
-│   ├── MNIST
-│   │   ├── pickle_functions.py
-│   │   └── read_functions.py
-│   └── main.ipynb
-├── Figure 6 : SGD vs Adam
+.
+├── LICENSE
+├── README.md
+├── data
+│   ├── datasets
+│   └── pickle
+├── requirements.yml
+├── ressources
+│   ├── ee411_foil_project1.pdf
+│   ├── ee411_foil_projects_description.pdf
+│   ├── logo-epfl.png
+│   └── report
+├── source
+│   ├── __pycache__
+│   ├── constants.py
+│   ├── data_classes.py
+│   ├── data_utils.py
+│   ├── display_functions.py
+│   ├── functions.py
+│   ├── main.ipynb
+│   ├── models
+│   └── training_utils.py
+└── template
+    ├── custom_colormaps
+    ├── intro_ocean_dynamics.ipynb
+    ├── intro_ocean_plot.ipynb
+    └── intro_resnet_plot.ipynb
 ```
 
 The project is segmented into three primary sections. The initial phase involves a preprocessing task where various datasets are presented. Different transformations, such as horizontal flips or random crops, are set. Subsequently, the second part comprises conducting experiments to justify the selection of parameters and models for the subsequent phase. In the final part, an attempt is made to replicate figures 4 and 6 from the specified paper.
