@@ -21,7 +21,7 @@ EE-411: Fundamentals of Inference and Learning
 
 ## Abstract 
 
-Modern machine learning research shows that the classical bias-variance trade-off has some limits as model size increases. The purpose of this project is to reproduce a research study conducted by engineers from Harvard and OpenAI [(Link to Publication)](https://arxiv.org/abs/1912.02292). This paper shows cases where increasing model size and data volume does not always lead to better performance.
+Modern machine learning research shows that the classical bias-variance trade-off has its limitations as model size increases. Contrary to the classical machine learning perspective, increasing the complexity of a model does not always lead to overfitting. The purpose of this project is to replicate a research study conducted by engineers from Harvard and OpenAI [(Link to Publication)](https://arxiv.org/abs/1912.02292). This paper unites both sides (classical and modern) by showcasing that there is no contradiction between the two points of view."
 
 ## Project structure
 ```
