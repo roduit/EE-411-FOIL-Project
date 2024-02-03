@@ -67,7 +67,7 @@ Once installed, to activate the environment, please use `conda activate FOILproj
 This project has been done by Vincent Roduit and Fabio Palmisano as a mandatory part of the course "EE-411: Fundamentals of Inference and Learning" given at Ecole Polytechnique Fédérale de Lausanne during the Fall semester of 2023.
 
 ## Results
-Figure 4 and 6 of the original paper has been reproduced. The derivation of the results can be found in file *source/main.ipynb*. For theoretical aspects and justifications, please reffer to the report (*ressources/ee411_project_report*)
+Figure 4 and 6 of the original paper has been reproduced. The derivation of the results can be found in file *source/main.ipynb*. For theoretical aspects and justifications, please reffer to the report (*ressources/ee411_project_report.pdf*)
 
 ### Figure 4
 <img src="./ressources/git_images/fig4_test_error.png" alt="Example Image">
