@@ -61,7 +61,7 @@ Modern machine learning research shows that the classical bias-variance trade-of
 The project is segmented into three primary sections. The initial phase involves a preprocessing task where various datasets are presented. Different transformations, such as horizontal flips or random crops, are set. Subsequently, the second part comprises conducting experiments to justify the selection of parameters and models for the subsequent phase. In the final part, an attempt is made to replicate figures 4 and 6 from the specified paper.
 
 ## Conda environment
-A conda environment, named projectFOIL, with all Python packages that you might need for running the project. You can install it with the following command : 
+A conda environment, named projectFOIL, with all Python packages that you might need for running the project is provided. You can install it with the following command : 
 
 `conda env create -f requirements.yml`
 
