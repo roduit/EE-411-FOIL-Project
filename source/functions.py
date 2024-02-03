@@ -177,10 +177,10 @@ def train_models(noise_ratio_list, width_model_list, optimizer_name='Adam', mode
         elapsed_time = str(timedelta(seconds=elapsed_time))
         print(f'Noise ratio {noise_ratio} done. Duration: {elapsed_time}')
         print('******************')
-        save_pickle('train_losses.pkl', train_losses)
-        save_pickle('train_accuracies.pkl', train_accuracies)
-        save_pickle('test_losses.pkl', test_losses)
-        save_pickle('test_accuracies.pkl', test_accuracies)
+        save_pickle(train_losses,'train_losses.pkl')
+        save_pickle(train_accuracies,'train_accuracies.pkl')
+        save_pickle(test_losses,'test_losses.pkl')
+        save_pickle(test_accuracies,'test_accuracies.pkl')
 
     return train_losses, train_accuracies, test_losses, test_accuracies
 
