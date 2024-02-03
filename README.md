@@ -35,7 +35,8 @@ Modern machine learning research shows that the classical bias-variance trade-of
 ├── ressources
 │   ├── ee411_foil_project1.pdf
 │   ├── ee411_foil_projects_description.pdf
-│   ├── logo-epfl.png
+│   ├── ee411_project_report.pdf
+│   ├── git_images
 │   └── report
 ├── source
 │   ├── constants.py
