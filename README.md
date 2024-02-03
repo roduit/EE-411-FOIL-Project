@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./ressources/logo-epfl.png" alt="Example Image" width="192" height="108">
+<img src="./ressources/git_images/logo-epfl.png" alt="Example Image" width="192" height="108">
 </div>
 
 <div align="center">
@@ -17,7 +17,7 @@ EE-411: Fundamentals of Inference and Learning
 - [Project Structure](#project-structure)
 - [Conda Environment](#conda-environment)
 - [Contributors](#contributors)
-- [Theory and results](#theory-and-results)
+- [Results](#results)
 
 ## Abstract 
 
@@ -67,8 +67,17 @@ Once installed, to activate the environment, please use `conda activate FOILproj
 This project has been done by Vincent Roduit and Fabio Palmisano as a mandatory part of the course "EE-411: Fundamentals of Inference and Learning" given at Ecole Polytechnique Fédérale de Lausanne during the Fall semester of 2023.
 
 ## Results
-Figure 4 and 6 of the original paper has been reproduced. The derivation of the results can be found in file *source/main.ipynb*
-<img src="./ressources/report/img/fig4_test_error.png" alt="Example Image" width="192" height="108">
+Figure 4 and 6 of the original paper has been reproduced. The derivation of the results can be found in file *source/main.ipynb*. For theoretical aspects and justifications, please reffer to the report (*ressources/ee411_project_report*)
+
+### Figure 4
+<img src="./ressources/git_images/fig4_test_error.png" alt="Example Image">
 </div>
-<img src="./ressources/report/img/fig4_train_error.png" alt="Example Image" width="192" height="108">
+<img src="./ressources/git_images/fig4_train_error.png" alt="Example Image">
 </div>
+
+### Figure 6
+<img src="./ressources/git_images/fig6_test.png" alt="Example Image">
+</div>
+<img src="./ressources/git_images/fig6_train.png" alt="Example Image">
+</div>
+
