@@ -16,6 +16,9 @@ PICKLE_FOLDER = os.path.join(DATA_FOLDER, "pickle")
 FIG4_FOLDER = os.path.join(PICKLE_FOLDER, "fig4")
 FIG6_FOLDER = os.path.join(PICKLE_FOLDER, "fig6")
 CONVERGENCE_FOLDER = os.path.join(PICKLE_FOLDER, "convergence")
+RESULTS_FOLDER = '../ressources/results/'
+if not os.path.exists(RESULTS_FOLDER):
+    os.makedirs(RESULTS_FOLDER)
 
 # Model constants
 BATCH_SIZE = 128
